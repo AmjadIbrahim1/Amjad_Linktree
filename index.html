@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amjad Ibrahim | Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --node-green: #68a063;
+    --node-green-bright: #8cc84b;
+    --node-green-dark: #3d6b3a;
+    --js-yellow: #f7df1e;
+    --js-yellow-warm: #f0db4f;
+    --js-amber: #e8c61a;
+    --html-orange: #e34c26;
+    --css-blue: #264de4;
+    --css-light: #2965f1;
+    --bg-dark: #0a0e0a;
+    --bg-panel: #0f1a0f;
+    --text-primary: #e8f5e8;
+    --text-secondary: #8aab8a;
+    --glow-green: rgba(140, 200, 75, 0.3);
+    --glow-yellow: rgba(247, 223, 30, 0.25);
+  }
+
+  body.light-mode {
+    --bg-dark: #f0f4f0;
+    --bg-panel: #e4ece4;
+    --text-primary: #1a2e1a;
+    --text-secondary: #4a6b4a;
+    --glow-green: rgba(80, 160, 60, 0.2);
+  }
+
+  body.light-mode .bg-canvas { filter: invert(1) hue-rotate(180deg); opacity: 0.3; }
+  body.light-mode .link-card { background: rgba(240,248,240,0.95); }
+  body.light-mode .contact-box { background: rgba(247,223,30,0.08); }
+  body.light-mode .avatar-fallback { background: linear-gradient(135deg, #b8d8b8, #d8ead8); }
+  body.light-mode .section-label-text { color: #3a7a3a; }
+  body.light-mode .username { color: #3a8a3a; }
+  body.light-mode .card-title { color: #1a2e1a; }
+  body.light-mode .card-subtitle { color: #4a6a4a; }
+  body.light-mode .name {
+    background: linear-gradient(135deg, #1a3a1a 0%, #3a8a3a 50%, #b8a000 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle-wrap {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: all;
+  }
+
+  .theme-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    text-transform: uppercase;
+    transition: color 0.4s;
+  }
+
+  .switch {
+    display: block;
+    background-color: black;
+    width: 60px;
+    height: 78px;
+    box-shadow: 0 0 10px 2px rgba(0,0,0,0.2), 0 0 1px 2px black, inset 0 2px 2px -2px white, inset 0 0 2px 15px #47434c, inset 0 0 2px 22px black;
+    border-radius: 5px;
+    padding: 8px;
+    perspective: 700px;
+    cursor: pointer;
+  }
+
+  .switch input { display: none; }
+
+  .switch input:checked + .button {
+    transform: translateZ(20px) rotateX(25deg);
+    box-shadow: 0 -10px 20px #ff1818;
+  }
+  .switch input:checked + .button .light {
+    animation: flicker 0.2s infinite 0.3s;
+  }
+  .switch input:checked + .button .shine { opacity: 1; }
+  .switch input:checked + .button .shadow { opacity: 0; }
+
+  .switch .button {
+    display: block;
+    transition: all 0.3s cubic-bezier(1,0,1,1);
+    transform-origin: center center -20px;
+    transform: translateZ(20px) rotateX(-25deg);
+    transform-style: preserve-3d;
+    background: linear-gradient(#980000 0%, #6f0000 30%, #6f0000 70%, #980000 100%);
+    background-repeat: no-repeat;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .switch .button::before {
+    content: "";
+    background: linear-gradient(rgba(255,255,255,0.8) 10%, rgba(255,255,255,0.3) 30%, #650000 75%, #320000) 50% 50%/97% 97%, #b10000;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 20px;
+    transform-origin: top;
+    transform: rotateX(-90deg);
+    position: absolute;
+    top: 0;
+  }
+
+  .switch .button::after {
+    content: "";
+    background-image: linear-gradient(#650000, #320000);
+    width: 100%;
+    height: 20px;
+    transform-origin: top;
+    transform: translateY(20px) rotateX(-90deg);
+    position: absolute;
+    bottom: 0;
+    box-shadow: 0 50px 8px 0px black, 0 80px 20px 0px rgba(0,0,0,0.5);
+  }
+
+  .switch .light {
+    opacity: 0;
+    animation: light-off 1s;
+    position: absolute;
+    width: 100%; height: 100%;
+    background-image: radial-gradient(#ffc97e, #ff1818 40%, transparent 70%);
+  }
+
+  .switch .dots {
+    position: absolute;
+    width: 100%; height: 100%;
+    background-image: radial-gradient(transparent 30%, rgba(101,0,0,0.7) 70%);
+    background-size: 10px 10px;
+  }
+
+  .switch .characters {
+    position: absolute;
+    width: 100%; height: 100%;
+    background:
+      linear-gradient(white, white) 50% 20%/5% 20%,
+      radial-gradient(circle, transparent 50%, white 52%, white 70%, transparent 72%) 50% 80%/33% 25%;
+    background-repeat: no-repeat;
+  }
+
+  .switch .shine {
+    transition: all 0.3s cubic-bezier(1,0,1,1);
+    opacity: 0.3;
+    position: absolute;
+    width: 100%; height: 100%;
+    background:
+      linear-gradient(white, transparent 3%) 50% 50%/97% 97%,
+      linear-gradient(rgba(255,255,255,0.5), transparent 50%, transparent 80%, rgba(255,255,255,0.5)) 50% 50%/97% 97%;
+    background-repeat: no-repeat;
+  }
+
+  .switch .shadow {
+    transition: all 0.3s cubic-bezier(1,0,1,1);
+    opacity: 1;
+    position: absolute;
+    width: 100%; height: 100%;
+    background: linear-gradient(transparent 70%, rgba(0,0,0,0.8));
+    background-repeat: no-repeat;
+  }
+
+  @keyframes flicker {
+    0%   { opacity: 1; }
+    80%  { opacity: 0.8; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes light-off {
+    0%  { opacity: 1; }
+    80% { opacity: 0; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(140,200,75,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,200,75,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridDrift 20s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(48px, 48px); }
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.12;
+    animation: blobFloat 12s ease-in-out infinite;
+  }
+
+  .blob-1 { width: 500px; height: 500px; background: var(--node-green-bright); top: -100px; left: -150px; animation-delay: 0s; }
+  .blob-2 { width: 400px; height: 400px; background: var(--js-yellow); bottom: -80px; right: -100px; animation-delay: -4s; }
+  .blob-3 { width: 300px; height: 300px; background: var(--css-blue); top: 40%; left: 60%; animation-delay: -8s; opacity: 0.07; }
+
+  @keyframes blobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+
+  .particles { position: absolute; inset: 0; }
+
+  .particle {
+    position: absolute;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    opacity: 0;
+    animation: particleFly 8s ease-in-out infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes particleFly {
+    0% { opacity: 0; transform: translateY(20px); }
+    20% { opacity: 0.3; }
+    80% { opacity: 0.15; }
+    100% { opacity: 0; transform: translateY(-60px); }
+  }
+
+  /* ===== MAIN WRAPPER ===== */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ===== PROFILE ===== */
+  .profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 32px;
+    animation: fadeSlideUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar-ring {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin-bottom: 20px;
+  }
+
+  .avatar-ring::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--node-green-bright) 0% 40%,
+      var(--js-yellow) 40% 80%,
+      var(--html-orange) 80% 90%,
+      var(--css-blue) 90% 100%
+    );
+    animation: rotateBorder 3s linear infinite;
+    z-index: -1;
+  }
+
+  .avatar-ring::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--node-green-bright) 0% 40%,
+      var(--js-yellow) 40% 80%,
+      var(--html-orange) 80% 90%,
+      var(--css-blue) 90% 100%
+    );
+    filter: blur(12px);
+    opacity: 0.5;
+    animation: rotateBorder 3s linear infinite;
+    z-index: -2;
+  }
+
+  @keyframes rotateBorder { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .avatar {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-dark);
+    object-fit: cover;
+    display: block;
+    background: #1a2a1a;
+  }
+
+  .avatar-fallback {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-dark);
+    background: linear-gradient(135deg, var(--node-green-dark), var(--bg-panel));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--node-green-bright);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .name-block { text-align: center; }
+
+  .name {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e8f5e8 0%, var(--node-green-bright) 50%, var(--js-yellow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .username {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--node-green-bright);
+    opacity: 0.8;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .bio {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 380px;
+    text-align: center;
+    direction: rtl;
+  }
+
+  /* ===== SECTION LABELS ===== */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 36px 0 20px;
+    animation: fadeSlideUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .section-label-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(140,200,75,0.3), transparent);
+  }
+
+  .section-label-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--node-green-bright);
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+
+  /* ===== LINK CARDS ===== */
+  .links-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 22px; /* ← increased from 18px */
+    width: 100%;
+  }
+
+  /* ===== FIRE SPINNER WRAPPER ===== */
+  .card-fire-wrap {
+    position: relative;
+    border-radius: 18px;
+    padding: 3px; /* space for the spinning border */
+    animation: cardEntrance 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    background: transparent;
+  }
+
+  /* Conic spinning rainbow border */
+  .card-fire-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 3px;
+    background: conic-gradient(
+      from var(--spin-angle, 0deg),
+      #ff0000,
+      #ff6a00,
+      #ffcc00,
+      #39ff14,
+      #00d4ff,
+      #a855f7,
+      #ff0090,
+      #ff0000
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: spinBorder 2s linear infinite;
+    z-index: 0;
+  }
+
+  /* Outer glow that rotates with the border */
+  .card-fire-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 22px;
+    background: conic-gradient(
+      from var(--spin-angle, 0deg),
+      rgba(255,0,0,0.45),
+      rgba(255,106,0,0.5),
+      rgba(255,204,0,0.55),
+      rgba(57,255,20,0.4),
+      rgba(0,212,255,0.4),
+      rgba(168,85,247,0.45),
+      rgba(255,0,144,0.45),
+      rgba(255,0,0,0.45)
+    );
+    filter: blur(10px);
+    animation: spinBorder 2s linear infinite;
+    z-index: -1;
+    opacity: 0.8;
+  }
+
+  @property --spin-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes spinBorder {
+    0%   { --spin-angle: 0deg; }
+    100% { --spin-angle: 360deg; }
+  }
+
+  /* Speed up on hover */
+  .card-fire-wrap:hover::before,
+  .card-fire-wrap:hover::after {
+    animation-duration: 0.6s;
+  }
+
+  /* The actual card sits inside the wrapper, z above the border */
+  .link-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 17px 22px;
+    border-radius: 15px;
+    text-decoration: none;
+    background: rgba(8, 13, 8, 0.96);
+    border: none;
+    backdrop-filter: blur(12px);
+    transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 1;
+    isolation: isolate;
+  }
+
+  body.light-mode .link-card { background: rgba(240,248,240,0.97); }
+
+  .link-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--card-glow, rgba(140,200,75,0.04));
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 15px;
+  }
+
+  .link-card:hover {
+    transform: translateY(-4px);
+    background: rgba(12, 20, 12, 0.98);
+  }
+
+  .link-card:hover::before { opacity: 1; }
+
+  @keyframes cardEntrance {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Card variants */
+  .card-linkedin  { --card-accent:#0077b5; --card-glow:rgba(0,119,181,0.08); }
+  .card-facebook  { --card-accent:#1877f2; --card-glow:rgba(24,119,242,0.08); }
+  .card-academy   { --card-accent:var(--node-green-bright); --card-glow:rgba(140,200,75,0.08); }
+  .card-youtube   { --card-accent:#ff0000; --card-glow:rgba(255,0,0,0.08); }
+  .card-instagram { --card-accent:#e1306c; --card-glow:rgba(225,48,108,0.08); }
+  .card-github    { --card-accent:#e8f5e8; --card-glow:rgba(232,245,232,0.05); }
+  .card-email     { --card-accent:var(--js-yellow); --card-glow:rgba(247,223,30,0.06); }
+  .card-telegram  { --card-accent:#229ed9; --card-glow:rgba(34,158,217,0.08); }
+  .card-phone     { --card-accent:var(--node-green-bright); --card-glow:rgba(140,200,75,0.07); }
+
+  /* Icon */
+  .card-icon {
+    width: 46px; height: 46px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 21px;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .link-card:hover .card-icon {
+    transform: scale(1.14) rotate(-4deg);
+  }
+
+  .card-content { flex: 1; min-width: 0; }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 0.97rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .card-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-arrow {
+    font-size: 18px;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+
+  .link-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(-4px);
+    color: var(--card-accent);
+  }
+
+  /* Shimmer */
+  .link-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .link-card:hover::after { animation: none; background: none; }
+
+  @keyframes shimmer {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ===== CONTACT BOX ===== */
+  .contact-box {
+    width: 100%;
+    margin-top: 8px;
+    padding: 22px;
+    border-radius: 16px;
+    background: rgba(247,223,30,0.04);
+    border: 1px solid rgba(247,223,30,0.15);
+    animation: fadeSlideUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .contact-box-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--js-yellow);
+    opacity: 0.8;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .contact-items { display: flex; flex-direction: column; gap: 12px; }
+
+  .contact-item { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .contact-item-icon { font-size: 16px; width: 28px; text-align: center; flex-shrink: 0; }
+  .contact-item-label { color: var(--text-secondary); font-size: 0.75rem; flex-shrink: 0; width: 70px; font-family: 'IBM Plex Mono', monospace; }
+  .contact-item-value { color: var(--text-primary); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    margin-top: 48px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    letter-spacing: 1px;
+    animation: fadeSlideUp 0.7s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  /* ===== RIPPLE ===== */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    width: 10px; height: 10px;
+    background: rgba(255,255,255,0.15);
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  @keyframes rippleAnim { to { transform: scale(20); opacity: 0; } }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(140,200,75,0.3); border-radius: 2px; }
+
+  /* ===== STAGGER ===== */
+  .card-fire-wrap:nth-child(1) { animation-delay: 0.05s; }
+  .card-fire-wrap:nth-child(2) { animation-delay: 0.10s; }
+  .card-fire-wrap:nth-child(3) { animation-delay: 0.15s; }
+  .card-fire-wrap:nth-child(4) { animation-delay: 0.20s; }
+  .card-fire-wrap:nth-child(5) { animation-delay: 0.25s; }
+  .card-fire-wrap:nth-child(6) { animation-delay: 0.30s; }
+  .card-fire-wrap:nth-child(7) { animation-delay: 0.35s; }
+  .card-fire-wrap:nth-child(8) { animation-delay: 0.40s; }
+
+  @media (max-width: 480px) {
+    .container { padding: 40px 16px 60px; }
+    .name { font-size: 1.6rem; }
+    .card-icon { width: 40px; height: 40px; font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle-wrap">
+  <span class="theme-label" id="theme-label">Dark</span>
+  <label class="switch" title="Toggle Light/Dark Mode">
+    <input type="checkbox" id="theme-checkbox" checked>
+    <div class="button">
+      <div class="light"></div>
+      <div class="dots"></div>
+      <div class="characters"></div>
+      <div class="shine"></div>
+      <div class="shadow"></div>
+    </div>
+  </label>
+</div>
+
+<!-- Background Canvas -->
+<div class="bg-canvas">
+  <div class="grid-lines"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="particles" id="particles"></div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+
+  <!-- Profile -->
+  <div class="profile-section">
+    <div class="avatar-ring">
+      <div class="avatar-fallback">AI</div>
+    </div>
+    <div class="name-block">
+      <h1 class="name">Amjad Ibrahim</h1>
+      <p class="username">@amjad_m121</p>
+      <p class="bio">Full-Stack Developer & Code Educator · بناء مواقع وتطبيقات احترافية · مجتمع مبرمجين ومستشارات تقنية</p>
+    </div>
+  </div>
+
+  <!-- Social Links -->
+  <div class="section-label">
+    <div class="section-label-line"></div>
+    <span class="section-label-text">Social Links</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="links-stack">
+
+    <div class="card-fire-wrap">
+      <a href="https://www.linkedin.com/in/amjad-ibrahim-5a647525a/" target="_blank" class="link-card card-linkedin" onclick="addRipple(event)">
+        <div class="card-icon">💼</div>
+        <div class="card-content">
+          <div class="card-title">LinkedIn</div>
+          <div class="card-subtitle">linkedin.com/in/amjad-ibrahim</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://www.facebook.com/amjad.ebrahim.107092" target="_blank" class="link-card card-facebook" onclick="addRipple(event)">
+        <div class="card-icon">📘</div>
+        <div class="card-content">
+          <div class="card-title">Facebook</div>
+          <div class="card-subtitle">facebook.com/amjad.ebrahim</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://www.facebook.com/profile.php?id=61582055140693" target="_blank" class="link-card card-academy" onclick="addRipple(event)">
+        <div class="card-icon">🎓</div>
+        <div class="card-content">
+          <div class="card-title">Code JS Academy</div>
+          <div class="card-subtitle">تعلم البرمجة · Facebook Group</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://www.youtube.com/@MegoCode" target="_blank" class="link-card card-youtube" onclick="addRipple(event)">
+        <div class="card-icon">▶️</div>
+        <div class="card-content">
+          <div class="card-title">YouTube · MegoCode</div>
+          <div class="card-subtitle">youtube.com/@MegoCode</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://www.instagram.com/amjadebrahim.1/" target="_blank" class="link-card card-instagram" onclick="addRipple(event)">
+        <div class="card-icon">📸</div>
+        <div class="card-content">
+          <div class="card-title">Instagram</div>
+          <div class="card-subtitle">@amjadebrahim.1</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://github.com/AmjadIbrahim1" target="_blank" class="link-card card-github" onclick="addRipple(event)">
+        <div class="card-icon">🐙</div>
+        <div class="card-content">
+          <div class="card-title">GitHub</div>
+          <div class="card-subtitle">github.com/AmjadIbrahim1</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Contact -->
+  <div class="section-label" style="animation-delay:0.2s">
+    <div class="section-label-line"></div>
+    <span class="section-label-text">Contact & Services</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="links-stack">
+
+    <div class="card-fire-wrap">
+      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=amjadibrahim218@gmail.com" target="_blank" class="link-card card-email" onclick="addRipple(event)">
+        <div class="card-icon">✉️</div>
+        <div class="card-content">
+          <div class="card-title">Email</div>
+          <div class="card-subtitle">amjadibrahim218@gmail.com</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://t.me/amjad_m121" target="_blank" class="link-card card-telegram" onclick="addRipple(event)">
+        <div class="card-icon">✈️</div>
+        <div class="card-content">
+          <div class="card-title">Telegram</div>
+          <div class="card-subtitle">@amjad_m121 · طلب خدمة / استشارة</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="card-fire-wrap">
+      <a href="https://wa.me/201030615045" target="_blank" class="link-card card-phone" onclick="addRipple(event)">
+        <div class="card-icon">💬</div>
+        <div class="card-content">
+          <div class="card-title">WhatsApp</div>
+          <div class="card-subtitle" dir="ltr">+20 103 061 5045</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Services Box -->
+  <div class="contact-box" style="margin-top:24px; animation-delay:0.3s;">
+    <div class="contact-box-title">⚡ الخدمات المتاحة</div>
+    <div class="contact-items">
+      <div class="contact-item">
+        <span class="contact-item-icon">🌐</span>
+        <span class="contact-item-label">Websites</span>
+        <span class="contact-item-value">إنشاء مواقع احترافية</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-item-icon">📱</span>
+        <span class="contact-item-label">Apps</span>
+        <span class="contact-item-value">تطبيقات موبايل احترافية</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-item-icon">💬</span>
+        <span class="contact-item-label">Discord</span>
+        <span class="contact-item-value">مجتمع مبرمجين · تعلم البرمجة</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-item-icon">🎯</span>
+        <span class="contact-item-label">Sessions</span>
+        <span class="contact-item-value">استشارات Business & Programming</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Amjad Ibrahim · Built with passion & code</p>
+  </div>
+
+</div>
+
+<script>
+  function addRipple(e) {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    ripple.style.left = (e.clientX - rect.left - 5) + 'px';
+    ripple.style.top  = (e.clientY - rect.top  - 5) + 'px';
+    card.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 700);
+  }
+
+  const codeSnippets = [
+    'const dev = new Amjad();','npm install success','node server.js',
+    'git push origin main','const app = express();','async/await ✓',
+    'console.log("Hello!")','{ } // clean code','module.exports = {}',
+    'npm start','() => {}','import React from','SELECT * FROM skills','fetch("/api/data")',
+  ];
+
+  const colors = [
+    'var(--node-green-bright)','var(--js-yellow)',
+    'rgba(140,200,75,0.5)','rgba(247,223,30,0.5)','var(--css-light)',
+  ];
+
+  const container = document.getElementById('particles');
+
+  function spawnParticle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+    p.style.color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = Math.random() * 90 + '%';
+    p.style.top  = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 6) + 's';
+    p.style.animationDelay = (Math.random() * 4) + 's';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 12000);
+  }
+
+  for (let i = 0; i < 8; i++) setTimeout(spawnParticle, i * 600);
+  setInterval(spawnParticle, 2000);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateX(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.link-card').forEach(card => observer.observe(card));
+
+  document.querySelectorAll('.badge').forEach(badge => {
+    badge.addEventListener('mouseenter', () => { badge.style.boxShadow = '0 0 16px currentColor'; });
+    badge.addEventListener('mouseleave', () => { badge.style.boxShadow = 'none'; });
+  });
+
+  const nameEl = document.querySelector('.name');
+  let glitchInterval;
+  function startGlitch() {
+    const originalText = 'Amjad Ibrahim';
+    const glitchChars = '!@#$%^&*<>{}[]';
+    let count = 0;
+    glitchInterval = setInterval(() => {
+      if (count > 6) { nameEl.textContent = originalText; clearInterval(glitchInterval); return; }
+      const pos = Math.floor(Math.random() * originalText.length);
+      const arr = originalText.split('');
+      arr[pos] = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+      nameEl.textContent = arr.join('');
+      count++;
+    }, 60);
+  }
+  nameEl.addEventListener('mouseenter', startGlitch);
+
+  const themeCheckbox = document.getElementById('theme-checkbox');
+  const themeLabel    = document.getElementById('theme-label');
+  themeCheckbox.addEventListener('change', () => {
+    if (themeCheckbox.checked) {
+      document.body.classList.remove('light-mode');
+      themeLabel.textContent = 'Dark';
+    } else {
+      document.body.classList.add('light-mode');
+      themeLabel.textContent = 'Light';
+    }
+  });
+
+  window.addEventListener('load', () => {
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.4s ease';
+    requestAnimationFrame(() => { document.body.style.opacity = '1'; });
+  });
+</script>
+</body>
+</html>
