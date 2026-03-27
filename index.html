@@ -412,7 +412,7 @@
   .links-stack {
     display: flex;
     flex-direction: column;
-    gap: 22px; /* ← increased from 18px */
+    gap: 22px;
     width: 100%;
   }
 
@@ -420,12 +420,11 @@
   .card-fire-wrap {
     position: relative;
     border-radius: 18px;
-    padding: 3px; /* space for the spinning border */
+    padding: 3px;
     animation: cardEntrance 0.6s cubic-bezier(0.16,1,0.3,1) both;
     background: transparent;
   }
 
-  /* Conic spinning rainbow border */
   .card-fire-wrap::before {
     content: '';
     position: absolute;
@@ -452,7 +451,6 @@
     z-index: 0;
   }
 
-  /* Outer glow that rotates with the border */
   .card-fire-wrap::after {
     content: '';
     position: absolute;
@@ -486,13 +484,11 @@
     100% { --spin-angle: 360deg; }
   }
 
-  /* Speed up on hover */
   .card-fire-wrap:hover::before,
   .card-fire-wrap:hover::after {
     animation-duration: 0.6s;
   }
 
-  /* The actual card sits inside the wrapper, z above the border */
   .link-card {
     position: relative;
     display: flex;
@@ -535,7 +531,6 @@
     to { opacity: 1; transform: translateX(0); }
   }
 
-  /* Card variants */
   .card-linkedin  { --card-accent:#0077b5; --card-glow:rgba(0,119,181,0.08); }
   .card-facebook  { --card-accent:#1877f2; --card-glow:rgba(24,119,242,0.08); }
   .card-academy   { --card-accent:var(--node-green-bright); --card-glow:rgba(140,200,75,0.08); }
@@ -546,7 +541,6 @@
   .card-telegram  { --card-accent:#229ed9; --card-glow:rgba(34,158,217,0.08); }
   .card-phone     { --card-accent:var(--node-green-bright); --card-glow:rgba(140,200,75,0.07); }
 
-  /* Icon */
   .card-icon {
     width: 46px; height: 46px;
     border-radius: 11px;
@@ -598,7 +592,6 @@
     color: var(--card-accent);
   }
 
-  /* Shimmer */
   .link-card::after {
     content: '';
     position: absolute;
@@ -670,12 +663,10 @@
 
   @keyframes rippleAnim { to { transform: scale(20); opacity: 0; } }
 
-  /* ===== SCROLLBAR ===== */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(140,200,75,0.3); border-radius: 2px; }
 
-  /* ===== STAGGER ===== */
   .card-fire-wrap:nth-child(1) { animation-delay: 0.05s; }
   .card-fire-wrap:nth-child(2) { animation-delay: 0.10s; }
   .card-fire-wrap:nth-child(3) { animation-delay: 0.15s; }
@@ -724,7 +715,13 @@
   <!-- Profile -->
   <div class="profile-section">
     <div class="avatar-ring">
-      <div class="avatar-fallback">AI</div>
+      <img
+        src="photo.jpg"
+        alt="Amjad Ibrahim"
+        class="avatar"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      >
+      <div class="avatar-fallback" style="display:none;">AI</div>
     </div>
     <div class="name-block">
       <h1 class="name">Amjad Ibrahim</h1>
@@ -939,11 +936,6 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.link-card').forEach(card => observer.observe(card));
-
-  document.querySelectorAll('.badge').forEach(badge => {
-    badge.addEventListener('mouseenter', () => { badge.style.boxShadow = '0 0 16px currentColor'; });
-    badge.addEventListener('mouseleave', () => { badge.style.boxShadow = 'none'; });
-  });
 
   const nameEl = document.querySelector('.name');
   let glitchInterval;
