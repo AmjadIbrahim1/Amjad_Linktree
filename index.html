@@ -425,6 +425,7 @@
     background: transparent;
   }
 
+  /* Border hidden by default */
   .card-fire-wrap::before {
     content: '';
     position: absolute;
@@ -449,6 +450,8 @@
     mask-composite: exclude;
     animation: spinBorder 2s linear infinite;
     z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .card-fire-wrap::after {
@@ -470,7 +473,19 @@
     filter: blur(10px);
     animation: spinBorder 2s linear infinite;
     z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Show border only on hover */
+  .card-fire-wrap:hover::before {
+    opacity: 1;
+    animation-duration: 0.6s;
+  }
+
+  .card-fire-wrap:hover::after {
     opacity: 0.8;
+    animation-duration: 0.6s;
   }
 
   @property --spin-angle {
@@ -482,11 +497,6 @@
   @keyframes spinBorder {
     0%   { --spin-angle: 0deg; }
     100% { --spin-angle: 360deg; }
-  }
-
-  .card-fire-wrap:hover::before,
-  .card-fire-wrap:hover::after {
-    animation-duration: 0.6s;
   }
 
   .link-card {
